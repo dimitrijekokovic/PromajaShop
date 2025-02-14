@@ -26,9 +26,8 @@ async function deleteProduct() {
 
     return (
         <Layout>
-            <h1 className="text-center">
-            Da li stvarno želiš da izbrišeš &quot;{productInfo?.title}&quot;?
-            </h1>
+            <h1 className="text-center">Da li stvarno zelis da izbrises 
+                "{'' + productInfo?.title}"?</h1>
             <div className="flex gap-2 justify-center">
             <button
             onClick={deleteProduct}
