@@ -3,7 +3,6 @@ import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import HistoryStats from "@/components/HistoryStats";
-import Image from "next/image";
 
 export default function Home() {
   const { data: session } = useSession();
@@ -33,13 +32,11 @@ export default function Home() {
             Cao, <b>{session?.user?.name}</b>
           </h2>
           <div className="flex items-center bg-gray-200 gap-3 text-black rounded-lg p-3 shadow-lg">
-          <Image
-            src={session?.user?.image}
-            alt="User avatar"
-            width={40}
-            height={40}
-            className="rounded-full shadow-md"
-          />
+            <img
+              src={session?.user?.image}
+              alt="User avatar"
+              className="w-10 h-10 rounded-full shadow-md"
+            />
             <span className="text-lg font-medium">{session?.user?.name}</span>
           </div>
         </div>

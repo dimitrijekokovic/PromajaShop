@@ -34,12 +34,10 @@ export default function Home() {
           </h2>
           <div className="flex items-center bg-gray-200 gap-3 text-black rounded-lg p-3 shadow-lg">
           <Image
-            src={session?.user?.image}
-            alt="User avatar"
-            width={40}
-            height={40}
-            className="rounded-full shadow-md"
-          />
+  src={session?.user?.image}
+  alt="User avatar"
+  className="rounded-full shadow-md"
+/>
             <span className="text-lg font-medium">{session?.user?.name}</span>
           </div>
         </div>
