@@ -1,4 +1,20 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
-
-export default nextConfig;
+const nextConfig = {
+    reactStrictMode: true, // Aktivirajte striktni mod za otkrivanje problema u razvoju
+    swcMinify: true, // Omogućite bržu minifikaciju koda u produkciji
+    images: {
+      domains: ['lh3.googleusercontent.com'], // Dozvolite slike sa Google-a za profilne slike
+    },
+    async redirects() {
+      return [
+        {
+          source: '/login',
+          destination: '/',
+          permanent: true,
+        },
+      ];
+    },
+  };
+  
+  export default nextConfig;
+  
