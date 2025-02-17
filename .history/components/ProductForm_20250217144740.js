@@ -103,7 +103,7 @@ export default function ProductForm({
 
   function updateImagesOrder(images) {
     console.log("Novi raspored slika:", newImages);
-  setImages([...images]); // Pravilno ažuriranje state-a
+  setImages([...newImages]); // Pravilno ažuriranje state-a
   }
 
   function setProductProp(propName, value) {
