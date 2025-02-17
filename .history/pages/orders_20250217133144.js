@@ -16,7 +16,7 @@ export default function OrdersPage({ ordersData, totalOrders }) {
   async function fetchOrders(page) {
     try {
       const res = await fetch(
-        `/api/orders?page=${page}&limit=${itemsPerPage}`
+        `h/api/orders?page=${page}&limit=${itemsPerPage}`
       );
       if (res.ok) {
         const data = await res.json();
@@ -118,7 +118,7 @@ export async function getServerSideProps(context) {
 
   try {
     const res = await fetch(
-      `/api/orders?page=${page}&limit=${limit}`
+      `http://localhost:3000/api/orders?page=${page}&limit=${limit}`
     );
     if (!res.ok) {
       console.error("Greška u GET zahtevu:", await res.text());
