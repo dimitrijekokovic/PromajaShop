@@ -179,8 +179,8 @@ export default function ProductForm({
       <div className="mb-2 flex flex-wrap gap-1">
       <ReactSortable
   className="flex flex-wrap gap-1"
-  list={images.map((image, index) => ({ id: index, url: image }))} // ✅ Pretvaramo slike u objekte
-  setList={(newOrder) => updateImagesOrder(newOrder.map((item) => item.url))} // ✅ Mapiramo nazad u niz URL-ova
+  list={images}
+  setList={updateImagesOrder}
 >
   {!!images?.length &&
     images.map((link, index) => (
@@ -188,11 +188,14 @@ export default function ProductForm({
         key={index}
         className="h-24 bg-white p-4 shadow-sm rounded-sm border border-gray-300 flex items-center justify-center"
       >
-        <Image src={link} alt="Slika proizvoda" width={96} height={96} className="rounded-lg" />
+        {link ? (
+          <Image src={link} alt="Slika proizvoda" width={96} height={96} className="rounded-lg" />
+        ) : (
+          <span className="text-gray-500 text-sm">Greška pri učitavanju slike</span>
+        )}
       </div>
     ))}
 </ReactSortable>
-
 
 
         {isUploading && (
