@@ -176,20 +176,15 @@ export default function ProductForm({
   setList={updateImagesOrder}
 >
   {!!images?.length &&
-    images.map((link, index) => (
+    images.map((link) => (
       <div
-        key={index}
-        className="h-24 bg-white p-4 shadow-sm rounded-sm border border-gray-300 flex items-center justify-center"
+        key={link}
+        className="h-24 bg-white p-4 shadow-sm rounded-sm border border-gray-300"
       >
-        {link ? (
-          <Image src={link} alt="Slika proizvoda" width={96} height={96} className="rounded-lg" />
-        ) : (
-          <span className="text-gray-500 text-sm">Greška pri učitavanju slike</span>
-        )}
+        <Image src={link} alt="Slika proizvoda" width={96} height={96} className="rounded-lg" />
       </div>
     ))}
 </ReactSortable>
-
 
         {isUploading && (
           <div className="h-24 flex items-center">
