@@ -126,35 +126,24 @@ export default async function handler(req, res) {
             const productData = await db.collection("products").findOne({
               _id: new ObjectId(prod.productId),
             });
-      
+
             if (!productData) {
               throw new Error(`Product with ID ${prod.productId} not found.`);
             }
-      
-            // Ako nema dovoljno na stanju, ne smanjujemo zalihe, ali čuvamo ime proizvoda
+
             if (productData.stock < prod.quantity) {
-              console.warn(
-                `Warning: Not enough stock for product ${productData.title}, ordered: ${prod.quantity}, available: ${productData.stock}`
-              );
-      
-              return {
-                productId: prod.productId,
-                quantity: prod.quantity,
-                name: productData.title, // Uvek čuvamo pravo ime
-                price: productData.price,
-              };
+              throw new Error(`Not enough stock for product ${productData.title}`);
             }
-      
-            // Smanjujemo zalihe samo ako ih ima dovoljno
+
             await db.collection("products").updateOne(
               { _id: new ObjectId(prod.productId) },
               { $inc: { stock: -prod.quantity } }
             );
-      
+
             return {
               productId: prod.productId,
               quantity: prod.quantity,
-              name: productData.title, // Uvek čuvamo pravo ime
+              name: productData.title,
               price: productData.price,
             };
           } catch (error) {
@@ -162,14 +151,12 @@ export default async function handler(req, res) {
             return {
               productId: prod.productId,
               quantity: prod.quantity,
-              name: "Nepoznat proizvod", // Ipak dodajemo nešto umesto "Unknown product"
+              name: "Unknown product",
               price: 0,
             };
           }
         })
       );
-      
-      
 
       const totalPrice = detailedProducts.reduce(
         (acc, prod) => acc + prod.quantity * prod.price,

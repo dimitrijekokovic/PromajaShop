@@ -169,7 +169,6 @@ export default async function handler(req, res) {
         })
       );
       
-      
 
       const totalPrice = detailedProducts.reduce(
         (acc, prod) => acc + prod.quantity * prod.price,
