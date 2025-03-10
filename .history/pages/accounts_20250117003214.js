@@ -71,14 +71,10 @@ export default function AccountsPage({ users }) {
 }
 
 // Serverska funkcija za povlačenje korisnika
-// Serverska funkcija za povlačenje korisnika, sortirano od najnovijeg ka najstarijem
 export async function getServerSideProps() {
   const client = await clientPromise;
   const db = client.db();
-  const users = await db.collection("users")
-    .find()
-    .sort({ createdAt: -1 }) // Sortira po datumu registracije, najnoviji prvi
-    .toArray();
+  const users = await db.collection("users").find().toArray();
 
   const usersData = users.map((user) => ({
     ...user,
