@@ -1,6 +1,7 @@
 import { Review } from "@/models/Review";
 import mongooseConnect from "@/lib/mongoose";
 import { Product } from "@/models/Product";
+import { isAdminRequest } from "./auth/[...nextauth]";
 
 
 export default async function handler(req, res) {
@@ -22,6 +23,9 @@ export default async function handler(req, res) {
   
 
   if (method === "DELETE") {
+    const isAdmin = await isAdminRequest(req, res);
+    if (!isAdmin) return;
+
     const { id } = req.query;
     try {
       await Review.findByIdAndDelete(id);

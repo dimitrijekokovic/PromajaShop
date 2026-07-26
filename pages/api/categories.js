@@ -1,9 +1,16 @@
 import { Category } from "@/models/Category";
 import mongooseConnect from "@/lib/mongoose";
+import { isAdminRequest } from "./auth/[...nextauth]";
 
 export default async function handle(req, res) {
   await mongooseConnect();
   const { method } = req;
+
+  // Public webshop needs category reads. Admin writes must be protected.
+  if (method !== "GET") {
+    const isAdmin = await isAdminRequest(req, res);
+    if (!isAdmin) return;
+  }
 
   if (method === "GET") {
     try {

@@ -2,6 +2,7 @@ import Cors from "cors";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 import Order from "@/models/Order";
+import { isAdminRequest } from "./auth/[...nextauth]";
 
 const cors = Cors({
   origin: "http://localhost:3001",
@@ -24,6 +25,12 @@ export default async function handler(req, res) {
 
   const client = await clientPromise;
   const db = client.db();
+
+  // Public checkout can create orders. Admin reads/deletes must be protected.
+  if (req.method === "GET" || req.method === "DELETE") {
+    const isAdmin = await isAdminRequest(req, res);
+    if (!isAdmin) return;
+  }
 
   if (req.method === "GET") {
     const { email, stats, page = 1, limit = 10, month, year } = req.query;

@@ -1,5 +1,6 @@
 import mongooseConnect from "@/lib/mongoose";
 import { Category } from "@/models/Category";
+import { isAdminRequest } from "./auth/[...nextauth]";
 
 export default async function handler(req, res) {
   await mongooseConnect();
@@ -7,6 +8,9 @@ export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Only POST method is allowed" });
   }
+
+  const isAdmin = await isAdminRequest(req, res);
+  if (!isAdmin) return;
 
   try {
     const categories = await Category.find();

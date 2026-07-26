@@ -112,9 +112,6 @@ export default function ProductForm({
         if (res.data?.links?.length > 0) {
           // Ažuriranje state-a sa novim slikama
           setImages((prevImages) => [...prevImages, ...res.data.links]);
-  
-          // Debug - Provera state-a nakon dodavanja slika
-          console.log("Updated images state:", [...prevImages, ...res.data.links]);
         }
       } catch (error) {
         console.error("Error uploading images:", error);

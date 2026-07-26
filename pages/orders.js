@@ -1,7 +1,10 @@
 import Layout from "@/components/Layout";
 import { useState, useEffect } from "react";
 import OrderDetailsModal from "@/components/OrderDetailsModal";
-import styles from "@/styles/orders.module.css"; // Import CSS Modules
+import styles from "@/styles/orders.module.css";
+import clientPromise from "@/lib/mongodb";
+import { getServerSession } from "next-auth";
+import { authOptions } from "./api/auth/[...nextauth]";
 
 export default function OrdersPage({ ordersData, totalOrders }) {
   const [orders, setOrders] = useState(ordersData);
@@ -15,14 +18,15 @@ export default function OrdersPage({ ordersData, totalOrders }) {
 
   async function fetchOrders(page) {
     try {
-      const res = await fetch(
-        `/api/orders?page=${page}&limit=${itemsPerPage}`
-      );
+      const res = await fetch(`/api/orders?page=${page}&limit=${itemsPerPage}`);
       if (res.ok) {
         const data = await res.json();
         setOrders(data.orders);
       } else {
-        console.error("Greška prilikom dohvaćanja narudžbina:", await res.text());
+        console.error(
+          "Greška prilikom dohvaćanja narudžbina:",
+          await res.text(),
+        );
       }
     } catch (error) {
       console.error("Greška prilikom fetch funkcije:", error);
@@ -38,7 +42,9 @@ export default function OrdersPage({ ordersData, totalOrders }) {
   }
 
   function handleDelete(orderId) {
-    setOrders((prevOrders) => prevOrders.filter((order) => order._id !== orderId)); 
+    setOrders((prevOrders) =>
+      prevOrders.filter((order) => order._id !== orderId),
+    );
   }
 
   const totalPages = Math.ceil(totalOrders / itemsPerPage);
@@ -115,28 +121,51 @@ export default function OrdersPage({ ordersData, totalOrders }) {
 
 export async function getServerSideProps(context) {
   const { page = 1, limit = 10 } = context.query;
+  const session = await getServerSession(context.req, context.res, authOptions);
+
+  if (session?.user?.role !== "admin") {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
 
   try {
-    const res = await fetch(
-      `/api/orders?page=${page}&limit=${limit}`
-    );
-    if (!res.ok) {
-      console.error("Greška u GET zahtevu:", await res.text());
-      return { props: { ordersData: [], totalOrders: 0 } };
-    }
-    const { orders, total } = await res.json();
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+    const client = await clientPromise;
+    const db = client.db();
+    const total = await db.collection("orders").countDocuments({});
+    const orders = await db
+      .collection("orders")
+      .find({})
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNumber)
+      .toArray();
+
     return {
       props: {
-        ordersData: orders,
+        ordersData: orders.map((order) => ({
+          ...order,
+          _id: order._id.toString(),
+          createdAt: order.createdAt
+            ? new Date(order.createdAt).toISOString()
+            : null,
+        })),
         totalOrders: total,
       },
     };
   } catch (error) {
-    console.error("Greška u fetch funkciji:", error);
+    console.error("Greška u getServerSideProps za narudžbine:", error);
     return {
       props: {
         ordersData: [],
-        totalOrders: 0 },
+        totalOrders: 0,
+      },
     };
   }
 }

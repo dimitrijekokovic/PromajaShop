@@ -7,8 +7,8 @@ export default async function handle(req, res) {
   const { method } = req;
   await mongooseConnect();
 
-  // Provera administratorskog pristupa osim za GET i POST metode
-  if (method !== "GET" && method !== "POST") {
+  // Public webshop needs product reads. Admin writes must be protected.
+  if (method === "PUT" || method === "DELETE") {
     const isAdmin = await isAdminRequest(req, res);
     if (!isAdmin) return;
   }
@@ -72,6 +72,9 @@ export default async function handle(req, res) {
         const products = await Product.find({ _id: { $in: ids } });
         return res.status(200).json(products);
       }
+
+      const isAdmin = await isAdminRequest(req, res);
+      if (!isAdmin) return;
 
       // Kreiranje novog proizvoda
       if (!title || !price || (category === undefined && !req.body.isExclusive)) {

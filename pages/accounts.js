@@ -2,6 +2,8 @@ import Layout from "@/components/Layout";
 import clientPromise from "@/lib/mongodb";
 import { useState } from "react";
 import styles from "@/styles/accounts.module.css"; // Import CSS Modules
+import { getServerSession } from "next-auth";
+import { authOptions } from "./api/auth/[...nextauth]";
 
 export default function AccountsPage({ users }) {
   const [currentPage, setCurrentPage] = useState(1);
@@ -33,7 +35,7 @@ export default function AccountsPage({ users }) {
                 <td data-label="Ime i prezime">
                   {user.firstName && user.lastName
                     ? `${user.firstName} ${user.lastName}`
-                    : "Nepoznato"}
+                    : user.name || "Nepoznato"}
                 </td>
                 <td data-label="Email">{user.email}</td>
                 <td data-label="Telefon">
@@ -72,7 +74,18 @@ export default function AccountsPage({ users }) {
 
 // Serverska funkcija za povlačenje korisnika
 // Serverska funkcija za povlačenje korisnika, sortirano od najnovijeg ka najstarijem
-export async function getServerSideProps() {
+export async function getServerSideProps(context) {
+  const session = await getServerSession(context.req, context.res, authOptions);
+
+  if (session?.user?.role !== "admin") {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
+
   const client = await clientPromise;
   const db = client.db();
   const users = await db.collection("users")
@@ -81,9 +94,14 @@ export async function getServerSideProps() {
     .toArray();
 
   const usersData = users.map((user) => ({
-    ...user,
     _id: user._id.toString(),
+    firstName: user.firstName || null,
+    lastName: user.lastName || null,
+    name: user.name || null,
+    email: user.email || null,
+    phoneNumber: user.phoneNumber || null,
     createdAt: user.createdAt ? new Date(user.createdAt).toISOString() : null,
+    updatedAt: user.updatedAt ? new Date(user.updatedAt).toISOString() : null,
   }));
 
   return {
